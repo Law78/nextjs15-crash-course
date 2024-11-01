@@ -26,7 +26,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { execSync } = require('child_process');
-            const scriptPath = '.github/scripts/check-trello.js';
+            const scriptPath = '.github/scripts/trello.js';
             execSync(`node ${scriptPath}`, { stdio: 'inherit' });
       - name: Failure message
         if: steps.lint.outcome != 'success'
