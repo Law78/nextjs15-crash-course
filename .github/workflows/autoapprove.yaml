@@ -18,8 +18,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           from_owner: law78
-          required_labels: []
-          apply_labels: []
+          required_labels: ""
+          apply_labels: ""
           # Opzionale: specifica criteri di approvazione
           # required-labels: 'auto-approve'  # Esempio di etichetta necessaria
           # ignore-labels: 'do-not-approve'  # Esempio di etichetta da ignorare
