@@ -6,13 +6,6 @@ const trelloApiKey = process.env.TRELLO_API_KEY;
 const trelloToken = process.env.TRELLO_AUTH_TOKEN;
 const trelloBoardId = process.env.TRELLO_BOARD_ID;
 
-// Recupera il titolo della PR dall'input
-const prTitle = core.getInput('prTitle');
-if (!prTitle) {
-  core.setFailed("Il titolo della PR deve essere fornito come input.");
-  process.exit(1);
-}
-
 const prUrl = context.payload.pull_request?.html_url || "N/A"; // Puoi impostare un valore di default se non disponibile
 const repoName = context.repo.owner + "/" + context.repo.repo;
 
