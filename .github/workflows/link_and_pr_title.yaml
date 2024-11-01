@@ -1,4 +1,4 @@
-name: "Lint and Link PR title"
+name: "Link PR title"
 
 on:
   workflow_dispatch:
