@@ -1,6 +1,22 @@
 name: "Lint and Link PR title"
 
 on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: "Log level"
+        required: true
+        default: "information"
+        type: choice
+        options:
+          - information
+          - debug
+          - warning
+          - critical
+      tags:
+        description: "Purpose of Run This Workflow?"
+        required: true
+        type: string
   pull_request:
     types:
       - opened
@@ -15,19 +31,25 @@ jobs:
     env:
       SAMPLE: "^.*sample.*"
     steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16" # Specifica la versione di Node.js
+
       - uses: Slashgear/action-check-pr-title@860e8dc639f8e60335a6f5e8936ba67ed2536890
         id: lint
         with:
           regexp: "\\\\[(#?[A-Z]*-[0-9]*( |, )?){1,}\\\\]" # Regex the title should match.
         continue-on-error: true
+
       - name: Verifica titolo PR su Trello
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { execSync } = require('child_process');
-            const scriptPath = '.github/scripts/trello.js';
-            execSync(`node ${scriptPath}`, { stdio: 'inherit' });
+        run: |
+          node .github/scripts/trello.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Failure message
         if: steps.lint.outcome != 'success'
         run: |
