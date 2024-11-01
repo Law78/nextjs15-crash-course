@@ -36,6 +36,9 @@ jobs:
           node .github/scripts/trello.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_AUTH_TOKEN: ${{ secrets.TRELLO_AUTH_TOKEN }}
+          TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
       - name: Failure message
         if: steps.lint.outcome != 'success'
         run: |
