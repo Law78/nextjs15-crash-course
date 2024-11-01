@@ -1,5 +1,5 @@
 const core = require("@actions/core");
-const fetch = require("node-fetch");
+import fetch from "node-fetch";
 
 const trelloApiKey = process.env.TRELLO_API_KEY;
 const trelloToken = process.env.TRELLO_AUTH_TOKEN;
