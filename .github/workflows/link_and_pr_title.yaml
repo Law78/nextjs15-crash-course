@@ -51,7 +51,7 @@ jobs:
 
       - name: Verifica titolo PR su Trello
         run: |
-          node .github/scripts/trello.js
+          node .github/scripts/trello.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
