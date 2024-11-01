@@ -6,10 +6,6 @@ const trelloApiKey = process.env.TRELLO_API_KEY;
 const trelloToken = process.env.TRELLO_AUTH_TOKEN;
 const trelloBoardId = process.env.TRELLO_BOARD_ID;
 
-console.log("Trello API Key: ", trelloApiKey);
-console.log("Trello Token: ", trelloToken);
-console.log("Trello Board ID: ", trelloBoardId);
-
 const prTitle = context.payload.pull_request.title; // Ora dovrebbe funzionare
 if (!prTitle) {
   core.setFailed("Il titolo della PR deve essere fornito come input.");
@@ -68,7 +64,6 @@ async function checkAndLinkTrelloCard() {
 
   try {
     const url = `https://api.trello.com/1/boards/${trelloBoardId}/cards?key=${trelloApiKey}&token=${trelloToken}`;
-    console.log(url);
 
     const response = await fetch(url);
 
@@ -77,18 +72,12 @@ async function checkAndLinkTrelloCard() {
     }
 
     const cards = await response.json();
-    console.log(`Looking for: #${prCode}`);
-    const matchingCard = cards.find((card) => {
-      console.log(
-        `${prCode} - ${card.idShort} - ${card.name} - ${
-          parseInt(prCode) === parseInt(card.idShort)
-        } - ${card.name.startsWith(`#${prCode}`)}`
-      );
-      return parseInt(prCode) === parseInt(card.idShort) &&
-        card.name.startsWith(`#${prCode}`)
+    const matchingCard = cards.find((card) =>
+      parseInt(prCode) === parseInt(card.idShort) &&
+      card.name.startsWith(`#${prCode}`)
         ? card
-        : null;
-    });
+        : null
+    );
 
     if (!matchingCard) {
       core.setFailed(
@@ -107,5 +96,10 @@ async function checkAndLinkTrelloCard() {
   }
 }
 
-checkAndLinkTrelloCard();
-process.exit(0);
+try {
+  // Il tuo codice principale
+  await checkAndLinkTrelloCard();
+  process.exit(0); // Indica successo
+} catch (error) {
+  core.setFailed(`Errore: ${error.message}`);
+}
