@@ -68,6 +68,8 @@ async function checkAndLinkTrelloCard() {
 
   try {
     const url = `https://api.trello.com/1/boards/${trelloBoardId}/cards?key=${trelloApiKey}&token=${trelloToken}`;
+    console.log(url);
+
     const response = await fetch(url);
 
     if (!response.ok) {
