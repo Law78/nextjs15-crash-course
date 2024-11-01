@@ -36,10 +36,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: "16"
 
       - name: Install Dependencies
         run: |
+          cd .github/scripts  # Naviga nella directory dove si trova il package.json
           npm install
 
       - uses: Slashgear/action-check-pr-title@860e8dc639f8e60335a6f5e8936ba67ed2536890
@@ -47,13 +48,13 @@ jobs:
         with:
           regexp: "\\\\[(#?[A-Z]*-[0-9]*( |, )?){1,}\\\\]"
         continue-on-error: true
-      
+
       - name: Verifica titolo PR su Trello
         run: |
           node .github/scripts/trello.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Failure message
         if: steps.lint.outcome != 'success'
         run: |
