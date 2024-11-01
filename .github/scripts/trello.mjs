@@ -108,3 +108,4 @@ async function checkAndLinkTrelloCard() {
 }
 
 checkAndLinkTrelloCard();
+process.exit(0);
