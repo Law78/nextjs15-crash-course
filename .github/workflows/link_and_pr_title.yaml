@@ -65,5 +65,5 @@ jobs:
       - name: Failure message
         if: steps.lint.outcome != 'success'
         run: |
-          echo "Pull request title (${{ github.event.pull_request.title }}) is not properly formatted or it is not related to any Jira issue"
+          echo "Pull request title (${{ github.event.pull_request.title }}) is not properly formatted or it is not related to any Trello card"
           exit 1

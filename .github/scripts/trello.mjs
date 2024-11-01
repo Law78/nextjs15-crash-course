@@ -77,7 +77,10 @@ async function checkAndLinkTrelloCard() {
     }
 
     const cards = await response.json();
-    const matchingCard = cards.find((card) => card.name.startsWith(prCode));
+    console.log(`Looking for: #${prCode}`);
+    const matchingCard = cards.find((card) =>
+      card.idShort.startsWith(`#${prCode}`)
+    );
 
     if (!matchingCard) {
       core.setFailed(
