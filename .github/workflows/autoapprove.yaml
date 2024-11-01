@@ -12,8 +12,7 @@ jobs:
         uses: dkhmelenko/autoapproval@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          from_owner:
-            - Law78
+          from_owner: Law78
           # Opzionale: specifica criteri di approvazione
           # required-labels: 'auto-approve'  # Esempio di etichetta necessaria
           # ignore-labels: 'do-not-approve'  # Esempio di etichetta da ignorare
