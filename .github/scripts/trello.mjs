@@ -1,5 +1,6 @@
 import core from "@actions/core";
 import fetch from "node-fetch";
+import { context } from "@actions/github";
 
 const trelloApiKey = process.env.TRELLO_API_KEY;
 const trelloToken = process.env.TRELLO_AUTH_TOKEN;
