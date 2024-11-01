@@ -81,10 +81,11 @@ async function checkAndLinkTrelloCard() {
     const matchingCard = cards.find((card) => {
       console.log(
         `${prCode} - ${card.idShort} - ${card.name} - ${
-          prCode === card.idShort
+          parseInt(prCode) === parseInt(card.idShort)
         } - ${card.name.startsWith(`#${prCode}`)}`
       );
-      return prCode === card.idShort && card.name.startsWith(`#${prCode}`)
+      return parseInt(prCode) === parseInt(card.idShort) &&
+        card.name.startsWith(`#${prCode}`)
         ? card.name
         : null;
     });
