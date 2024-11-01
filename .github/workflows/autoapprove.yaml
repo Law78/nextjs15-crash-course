@@ -13,8 +13,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          from_owner:
-            - law78
+          from_owner: law78
           required_labels: []
           apply_labels: []
           # Opzionale: specifica criteri di approvazione
