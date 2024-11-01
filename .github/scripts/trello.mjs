@@ -82,9 +82,9 @@ async function checkAndLinkTrelloCard() {
       console.log(
         `${prCode} - ${card.idShort} - ${card.name} - ${
           prCode === card.idShort
-        } - ${card.name.startWith(`#${prCode}`)}`
+        } - ${card.name.startsWith(`#${prCode}`)}`
       );
-      return prCode === card.idShort && card.name.startWith(`#${prCode}`)
+      return prCode === card.idShort && card.name.startsWith(`#${prCode}`)
         ? card.name
         : null;
     });
