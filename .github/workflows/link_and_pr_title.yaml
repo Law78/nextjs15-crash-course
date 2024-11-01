@@ -1,0 +1,35 @@
+name: "Lint and Link PR title"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+jobs:
+  lint:
+    name: Validate PR title and Check Trello Card
+    runs-on: ubuntu-22.04
+    env:
+      SAMPLE: "^.*sample.*"
+    steps:
+      - uses: Slashgear/action-check-pr-title@860e8dc639f8e60335a6f5e8936ba67ed2536890
+        id: lint
+        with:
+          regexp: "\\\\[(#?[A-Z]*-[0-9]*( |, )?){1,}\\\\]" # Regex the title should match.
+        continue-on-error: true
+      - name: Verifica titolo PR su Trello
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { execSync } = require('child_process');
+            const scriptPath = '.github/scripts/check-trello.js';
+            execSync(`node ${scriptPath}`, { stdio: 'inherit' });
+      - name: Failure message
+        if: steps.lint.outcome != 'success'
+        run: |
+          echo "Pull request title (${{ github.event.pull_request.title }}) is not properly formatted or it is not related to any Jira issue"
+          exit 1
