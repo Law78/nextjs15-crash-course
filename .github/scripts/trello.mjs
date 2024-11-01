@@ -38,9 +38,10 @@ async function addGitHubAttachmentToCard(cardId) {
   });
 
   if (!response.ok) {
-    throw new Error(
+    core.setFailed(
       `Errore nell'aggiungere l'attachment: ${response.statusText}`
     );
+    process.exit(1);
   }
 
   console.log("Attachment GitHub aggiunto con successo alla card Trello");
@@ -51,7 +52,7 @@ async function checkAndLinkTrelloCard() {
     core.setFailed(
       `Errore: L'ID della board Trello non sembra essere valido: ${trelloBoardId}`
     );
-    return;
+    process.exit(1);
   }
 
   const prCode = extractCodeFromPRTitle(prTitle);
@@ -59,7 +60,7 @@ async function checkAndLinkTrelloCard() {
     core.setFailed(
       `Errore: Il titolo della PR non inizia con un codice valido nel formato [#codice]`
     );
-    return;
+    process.exit(1);
   }
 
   try {
@@ -68,7 +69,8 @@ async function checkAndLinkTrelloCard() {
     const response = await fetch(url);
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      core.setFailed(`HTTP error! status: ${response.status}`);
+      process.exit(1);
     }
 
     const cards = await response.json();
@@ -83,6 +85,7 @@ async function checkAndLinkTrelloCard() {
       core.setFailed(
         `Errore: Nessuna carta Trello trovata che inizia con il codice "${prCode}" nella board specificata.`
       );
+      process.exit(1);
     } else {
       console.log(
         `Carta Trello trovata che inizia con il codice "${prCode}": "${matchingCard.name}"`
@@ -93,13 +96,9 @@ async function checkAndLinkTrelloCard() {
     core.setFailed(
       `Errore durante la verifica o il collegamento della carta Trello: ${error.message}`
     );
+    process.exit(1);
   }
 }
 
-try {
-  // Il tuo codice principale
-  await checkAndLinkTrelloCard();
-  process.exit(0); // Indica successo
-} catch (error) {
-  core.setFailed(`Errore: ${error.message}`);
-}
+await checkAndLinkTrelloCard();
+process.exit(0); // Indica successo
