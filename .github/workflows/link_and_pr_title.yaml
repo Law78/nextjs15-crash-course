@@ -3,6 +3,10 @@ name: "Link PR title"
 on:
   workflow_dispatch:
     inputs:
+      prTitle:
+        description: "Title of the Pull Request"
+        required: true
+        type: string
       logLevel:
         description: "Log level"
         required: true
