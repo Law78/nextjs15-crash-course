@@ -1,26 +1,6 @@
 name: "Link PR title"
 
 on:
-  workflow_dispatch:
-    inputs:
-      prTitle:
-        description: "Title of the Pull Request"
-        required: true
-        type: string
-      logLevel:
-        description: "Log level"
-        required: true
-        default: "information"
-        type: choice
-        options:
-          - information
-          - debug
-          - warning
-          - critical
-      tags:
-        description: "Purpose of Run This Workflow?"
-        required: true
-        type: string
   pull_request:
     types:
       - opened
@@ -32,8 +12,6 @@ jobs:
   lint:
     name: Validate PR title and Check Trello Card
     runs-on: ubuntu-22.04
-    env:
-      SAMPLE: "^.*sample.*"
     steps:
       - uses: actions/checkout@v2
 
@@ -58,10 +36,6 @@ jobs:
           node .github/scripts/trello.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
-          TRELLO_AUTH_TOKEN: ${{ secrets.TRELLO_AUTH_TOKEN }}
-          TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
-          PR_TITLE: ${{ inputs.prTitle }} # Passa l'input allo script
       - name: Failure message
         if: steps.lint.outcome != 'success'
         run: |
