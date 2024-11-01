@@ -10,8 +10,9 @@ jobs:
     steps:
       - name: Auto approve PR
         uses: dkhmelenko/autoapproval@v1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           from_owner: Law78
           # Opzionale: specifica criteri di approvazione
           # required-labels: 'auto-approve'  # Esempio di etichetta necessaria
