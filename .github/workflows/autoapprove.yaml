@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Auto approve PR
-        uses: dkhmelenko/autoapproval@v1
+        uses: dkhmelenko/autoapproval@v1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           from_owner: Law78
