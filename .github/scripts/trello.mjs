@@ -6,6 +6,10 @@ const trelloApiKey = process.env.TRELLO_API_KEY;
 const trelloToken = process.env.TRELLO_AUTH_TOKEN;
 const trelloBoardId = process.env.TRELLO_BOARD_ID;
 
+console.log("Trello API Key: ", trelloApiKey);
+console.log("Trello Token: ", trelloToken);
+console.log("Trello Board ID: ", trelloBoardId);
+
 const prTitle = context.payload.pull_request.title; // Ora dovrebbe funzionare
 if (!prTitle) {
   core.setFailed("Il titolo della PR deve essere fornito come input.");
