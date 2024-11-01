@@ -86,7 +86,7 @@ async function checkAndLinkTrelloCard() {
       );
       return parseInt(prCode) === parseInt(card.idShort) &&
         card.name.startsWith(`#${prCode}`)
-        ? card.name
+        ? card
         : null;
     });
 
