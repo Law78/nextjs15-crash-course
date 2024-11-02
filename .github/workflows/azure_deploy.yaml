@@ -21,6 +21,9 @@ jobs:
         with:
           terraform_version: 1.0.0 # Sostituisci con la versione di Terraform desiderata
 
+      - name: Change to infra directory
+        run: cd infra
+
       - name: Terraform Init
         run: terraform init
 
