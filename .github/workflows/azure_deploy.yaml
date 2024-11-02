@@ -24,6 +24,10 @@ env:
   ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
   ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
   ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+  ARM_USE_OIDC: true
+  ARM_USE_AZUREAD: true
+  ARM_STORAGE_USE_AZUREAD: true
+
 
 jobs:
   terraform-plan:
@@ -32,6 +36,10 @@ jobs:
     env:
       #this is needed since we are running terraform with read-only permissions
       ARM_SKIP_PROVIDER_REGISTRATION: true
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    permissions:
+      id-token: write
+      contents: read
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
@@ -45,6 +53,18 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
+      
+      - name: Set Environment Variables
+        if: ${{ inputs.env_vars }}
+        env:
+          ENV_VARS: ${{ inputs.env_vars }}
+        run: |
+          set -euo pipefail
+
+          for i in "$ENV_VARS[@]"
+          do
+            printf "%q\n" "$i" >> "$GITHUB_ENV"
+          done
 
       - name: Azure Login
         uses: azure/login@v2 # v2.0.0
@@ -149,6 +169,18 @@ jobs:
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+      
+            - name: Set Environment Variables
+        if: ${{ inputs.env_vars }}
+        env:
+          ENV_VARS: ${{ inputs.env_vars }}
+        run: |
+          set -euo pipefail
+
+          for i in "$ENV_VARS[@]"
+          do
+            printf "%q\n" "$i" >> "$GITHUB_ENV"
+          done
 
       - name: Azure Login
         uses: azure/login@v2 # v2.0.0
