@@ -1,9 +1,6 @@
 name: Deploy to Azure with Terraform
 
 on:
-  push:
-    branches:
-      - main # Cambia se necessario
   workflow_dispatch:
     inputs:
       environment:
@@ -37,3 +34,6 @@ jobs:
           ARM_CLIENT_SECRET: ${{ github.event.inputs.environment == 'PROD' && secrets.PROD_AZURE_CLIENT_SECRET || secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ github.event.inputs.environment == 'PROD' && secrets.PROD_AZURE_SUBSCRIPTION_ID || secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ github.event.inputs.environment == 'PROD' && secrets.PROD_AZURE_TENANT_ID || secrets.AZURE_TENANT_ID }}
+
+      - name: Cleanup
+        run: terraform workspace select default || terraform workspace new default
