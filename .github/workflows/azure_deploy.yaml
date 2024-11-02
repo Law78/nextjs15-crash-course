@@ -7,7 +7,7 @@ on:
         description: The base path on which the script will look for Terraform projects
         type: string
         required: true
-        deault: "infra"
+        default: "infra"
       environment:
         description: "Select environment (DEV or PROD)"
         required: true
@@ -48,18 +48,23 @@ jobs:
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        run: terraform init
+        run: |
+          cd ${{ inputs.base_path }}
+          terraform init
 
       # Checks that all Terraform configuration files adhere to a canonical format
       # Will fail the build if not
       - name: Terraform Format
-        run: terraform fmt -check
+        run: |
+          cd ${{ inputs.base_path }}
+          terraform fmt -check
 
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
       - name: Terraform Plan
         id: tf-plan
         run: |
+          cd ${{ inputs.base_path }}
           export exitcode=0
           terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
 
@@ -83,6 +88,7 @@ jobs:
       - name: Create String Output
         id: tf-plan-string
         run: |
+          cd ${{ inputs.base_path }}
           TERRAFORM_PLAN=$(terraform show -no-color tfplan)
 
           delimiter="$(openssl rand -hex 8)"
@@ -101,6 +107,7 @@ jobs:
         env:
           SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
         run: |
+          cd ${{ inputs.base_path }}
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
       # If this is a PR post the changes
@@ -138,7 +145,9 @@ jobs:
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        run: terraform init
+        run: |
+          cd ${{ inputs.base_path }}
+          terraform init
 
       # Download saved plan from artifacts
       - name: Download Terraform Plan
@@ -148,4 +157,6 @@ jobs:
 
       # Terraform Apply
       - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+        run: |
+          cd ${{ inputs.base_path }}
+          terraform apply -auto-approve tfplan
