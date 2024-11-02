@@ -5,7 +5,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "example" {
   name     = "example-resources"
-  location = "East US"  # Cambia con la tua regione preferita
+  location = "East US" # Cambia con la tua regione preferita
 }
 
 resource "azurerm_user_assigned_identity" "example" {

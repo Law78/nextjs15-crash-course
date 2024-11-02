@@ -57,7 +57,7 @@ jobs:
       - name: Terraform Format
         run: |
           cd ${{ inputs.base_path }}
-          terraform fmt -check
+          terraform fmt -check || (echo "Format issues detected!" && exit 1)
 
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
