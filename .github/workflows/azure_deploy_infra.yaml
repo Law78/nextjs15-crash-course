@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  Deploy Resource:
+  deploy_resource:
     runs-on: ubuntu-latest
 
     steps:
