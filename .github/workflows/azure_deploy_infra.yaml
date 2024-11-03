@@ -3,10 +3,34 @@ name: Azure Deploy
 on:
   workflow_dispatch:
     inputs:
-      example_input:
-        description: "An example input"
+      azure_roles:
+        description: "Azure roles"
         required: true
-        default: "test"
+        default: '["Reader"]'
+      branches:
+        description: "Branches"
+        required: true
+        default: '["main"]'
+      environments:
+        description: "Environments"
+        required: true
+        default: '["dev", "uat", "prod"]'
+      tags:
+        description: "Tags"
+        required: true
+        default: '["latest"]'
+      pull_request:
+        description: "Pull request"
+        required: true
+        default: "true"
+      github_organization_name:
+        description: "GitHub organization name"
+        required: true
+        default: "Law78"
+      github_repository_name:
+        description: "GitHub repository name"
+        required: true
+        default: "nextjs15-crash-course"
 
 permissions:
   id-token: write
@@ -39,19 +63,12 @@ jobs:
 
       - name: Terraform Plan
         run: |
-          terraform -chdir=infra/dev plan \ 
+          cd infra/dev && export TF_LOG=DEBUG && terraform plan \
             -var "azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
-            -var 'azure_roles=["Reader"]' \
-            -var 'branches=["main"]' \
-            -var 'environments=["dev", "uat", "prod"]' \
-            -var 'tags=["latest"]' \
-            -var 'pull_request=true' \
-            -var 'github_organization_name="Law78"' \
-            -var 'github_repository_name="nextjs15-crash-course"'
 
       - name: Terraform Apply
         run: |
-          terraform -chdir=infra/dev apply -auto-approve
+          cd infra/dev && terraform apply -auto-approve
 
       - name: Remove Terraform Lock
         run: |
