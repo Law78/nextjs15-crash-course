@@ -40,7 +40,7 @@ jobs:
           TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
         run: |
-          cd infra/dev && terraform plan -no-color -out=tfplan
+          cd infra/dev && terraform plan -no-color -out=tfplan-${{ github.sha }}
 
       - name: Debug Variables
         run: |
@@ -92,7 +92,7 @@ jobs:
           TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
         run: |
-          cd infra/dev && terraform apply -auto-approve tfplan
+          cd infra/dev && terraform apply -auto-approve tfplan-${{ github.sha }}
 
       - name: Remove Terraform Lock
         run: |
