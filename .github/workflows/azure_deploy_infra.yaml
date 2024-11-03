@@ -62,16 +62,17 @@ jobs:
           cd infra/dev && terraform init
 
       - name: Terraform Plan
+        env:
+          TF_VAR_AZURE_SUBSCRIPTION_ID: ${{  secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_AZURE_ROLES: ${{ github.event.inputs.azure_roles }}
+          TF_VAR_BRANCHES: ${{ github.event.inputs.branches }}
+          TF_VAR_ENVIRONMENTS: ${{ github.event.inputs.environments }}
+          TF_VAR_TAGS: ${{ github.event.inputs.tags }}
+          TF_VAR_PULL_REQUEST: ${{ github.event.inputs.pull_request }}
+          TF_VAR_GITHUB_ORGANIZATION_NAME: ${{ github.event.inputs.github_organization_name }}
+          TF_VAR_GITHUB_REPOSITORY_NAME: ${{ github.event.inputs.github_repository_name }}
         run: |
-          terraform -chdir=infra/dev plan \
-            -var "azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
-            -var "azure_roles=${{ github.event.inputs.azure_roles }}" \
-            -var "branches=${{ github.event.inputs.branches }}" \
-            -var "environments=${{ github.event.inputs.environments }}" \
-            -var "tags=${{ github.event.inputs.tags }}" \
-            -var "pull_request=${{ github.event.inputs.pull_request }}" \
-            -var "github_organization_name=${{ github.event.inputs.github_organization_name }}" \
-            -var "github_repository_name=${{ github.event.inputs.github_repository_name }}"
+          cd infra/dev && terraform plan -out=plan
 
       - name: Terraform Apply
         run: |
