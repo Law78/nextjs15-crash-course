@@ -36,12 +36,12 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Terraform Init
-        working-directory: ${{ steps.directory.outputs.dir }}
+        working-directory: ${{ env.BASE_PATH }}
         run: |
           terraform init
 
       - name: Terraform Plan
-        working-directory: ${{ steps.directory.outputs.dir }}
+        working-directory: ${{ env.BASE_PATH }}
         env:
           TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
