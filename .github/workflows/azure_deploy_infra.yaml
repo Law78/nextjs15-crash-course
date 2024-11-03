@@ -8,7 +8,7 @@ on:
         description: Select the environment
 env:
   BUNDLE_NAME: bundle
-  BASE_PATH: "infra/${{ inputs.environment }}"
+  BASE_PATH: "infra/dev"
 
 permissions:
   id-token: write
