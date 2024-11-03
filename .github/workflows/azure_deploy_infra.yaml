@@ -6,7 +6,7 @@ on:
       azure_roles:
         description: "Azure roles"
         required: true
-        default: '["Reader"]'
+        default: '["Contributor", "Reader"]'
       branches:
         description: "Branches"
         required: true
