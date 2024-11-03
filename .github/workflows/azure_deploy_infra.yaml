@@ -6,6 +6,7 @@ on:
       environment:
         type: environment
         description: Select the environment
+
 env:
   BUNDLE_NAME: bundle
   BASE_PATH: "infra/${{ inputs.environment }}"
@@ -18,18 +19,21 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     outputs:
-      working_dir: ${{ steps.directory.outputs.dir }}
-      terraform_version: ${{ steps.set-terraform-version.outputs.terraform_version }}
+      working_dir: ${{ steps.set-working-directory.outputs.dir }}
+      terraform_version: ${{ steps.setup-terraform.outputs.terraform_version }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
-        name: Setup Terraform
+      - name: Setup Terraform
+        id: setup-terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: ${{ needs.tf_plan.outputs.terraform_version }}
+          terraform_version: 1.7.5
 
-      - uses: azure/login@v2
+      - name: Azure Login
+        uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -43,7 +47,7 @@ jobs:
       - name: Terraform Plan
         working-directory: ${{ env.BASE_PATH }}
         env:
-          TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
         run: |
           terraform plan -no-color -out=tfplan-${{ github.sha }}
@@ -57,48 +61,40 @@ jobs:
         run: |
           ls -l tfplan-${{ github.sha }}
 
-      - name: "Upload Terraform Plan as Artifact"
-        uses: actions/upload-artifact@694cdabd8bdb0f10b2cea11669e1bf5453eed0a6 # v4.2.0
+      - name: Upload Terraform Plan as Artifact
+        uses: actions/upload-artifact@v2
         with:
           name: tfplan
-          path: ${{ env.BASE_PATH }}${{ steps.directory.outputs.dir }}/tfplan-${{ github.sha }}
+          path: ${{ env.BASE_PATH }}/tfplan-${{ github.sha }}
           if-no-files-found: error
           retention-days: 1
 
   apply:
-    needs: [plan]
+    needs: plan
     runs-on: ubuntu-latest
     steps:
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Download Terraform Plan as Artifact
-        uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
+        uses: actions/download-artifact@v2
         with:
           name: tfplan
-          path: ${{ env.BASE_PATH }}${{ needs.tf_plan.outputs.working_dir }}
+          path: ${{ env.BASE_PATH }}
 
-      - name: Retrieve Terraform Modules from Cache
-        uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          path: ${{ needs.tf_plan.outputs.working_dir }}/.terraform
-          key: terraform-${{ needs.tf_plan.outputs.working_dir }}-${{ github.sha }}
-          restore-keys: |
-            terraform-${{ needs.tf_plan.outputs.working_dir }}
-
-      - uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
-        name: Setup Terraform
-        with:
-          terraform_version: ${{ needs.tf_plan.outputs.terraform_version }}
+          terraform_version: 1.7.5
 
       - name: Terraform Apply
         working-directory: ${{ env.BASE_PATH }}
         env:
-          TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
         run: |
           terraform apply -auto-approve tfplan-${{ github.sha }}
@@ -107,6 +103,3 @@ jobs:
         working-directory: ${{ env.BASE_PATH }}
         run: |
           rm -f .terraform.lock.hcl
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
