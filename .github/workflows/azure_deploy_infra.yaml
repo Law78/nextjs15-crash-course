@@ -16,6 +16,9 @@ permissions:
 jobs:
   plan:
     runs-on: ubuntu-latest
+    outputs:
+      working_dir: ${{ steps.directory.outputs.dir }}
+      terraform_version: ${{ steps.set-terraform-version.outputs.terraform_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,6 +39,7 @@ jobs:
           cd infra/dev && terraform init
 
       - name: Terraform Plan
+        working-directory: ${{ steps.directory.outputs.dir }}
         env:
           TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
@@ -56,7 +60,7 @@ jobs:
           name: tfplan
           path: ${{ steps.directory.outputs.dir }}/tfplan-${{ github.sha }}
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
   apply:
     needs: [plan]
