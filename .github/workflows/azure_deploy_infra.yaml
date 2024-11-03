@@ -53,8 +53,9 @@ jobs:
           echo "Azure Subscription ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
       - name: Check tfplan file
+        working-directory: ${{ env.BASE_PATH }}
         run: |
-          ls -l infra/dev/tfplan
+          ls -l tfplan-${{ github.sha }}
 
       - name: "Upload Terraform Plan as Artifact"
         uses: actions/upload-artifact@694cdabd8bdb0f10b2cea11669e1bf5453eed0a6 # v4.2.0
@@ -93,7 +94,9 @@ jobs:
         name: Setup Terraform
         with:
           terraform_version: ${{ needs.tf_plan.outputs.terraform_version }}
+
       - name: Terraform Apply
+        working-directory: ${{ env.BASE_PATH }}
         env:
           TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
@@ -101,8 +104,9 @@ jobs:
           terraform apply -auto-approve tfplan-${{ github.sha }}
 
       - name: Remove Terraform Lock
+        working-directory: ${{ env.BASE_PATH }}
         run: |
-          cd infra/dev && rm -f .terraform.lock.hcl
+          rm -f .terraform.lock.hcl
 
       - name: Checkout repository
         uses: actions/checkout@v4
