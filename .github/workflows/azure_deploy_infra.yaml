@@ -1,4 +1,4 @@
-name: Terraform Deploy
+name: Azure Deploy
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         default: "test"
   push:
     branches:
-      - main # Cambia il nome del branch se necessario
+      - main
 
 jobs:
   terraform:
@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
@@ -42,7 +42,4 @@ jobs:
       - name: Terraform Apply
         run: |
           cd infra/dev && terraform apply -auto-approve
-        env:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
