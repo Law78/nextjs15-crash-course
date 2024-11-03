@@ -63,8 +63,15 @@ jobs:
 
       - name: Terraform Plan
         run: |
-          cd infra/dev && export TF_LOG=DEBUG && terraform plan \
+          terraform -chdir=infra/dev plan \
             -var "azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
+            -var "azure_roles=${{ github.event.inputs.azure_roles }}" \
+            -var "branches=${{ github.event.inputs.branches }}" \
+            -var "environments=${{ github.event.inputs.environments }}" \
+            -var "tags=${{ github.event.inputs.tags }}" \
+            -var "pull_request=${{ github.event.inputs.pull_request }}" \
+            -var "github_organization_name=${{ github.event.inputs.github_organization_name }}" \
+            -var "github_repository_name=${{ github.event.inputs.github_repository_name }}"
 
       - name: Terraform Apply
         run: |
