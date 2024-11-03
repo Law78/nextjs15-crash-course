@@ -6,7 +6,6 @@ on:
       environment:
         type: environment
         description: Select the environment
-
 env:
   BUNDLE_NAME: bundle
   BASE_PATH: "infra/${{ inputs.environment }}"
@@ -19,21 +18,17 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     outputs:
-      working_dir: ${{ steps.set-working-directory.outputs.dir }}
-      terraform_version: ${{ steps.setup-terraform.outputs.terraform_version }}
-
+      terraform_version: "1.5.7"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        id: setup-terraform
-        uses: hashicorp/setup-terraform@v1
+      - uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
+        name: Setup Terraform
         with:
-          terraform_version: 1.7.5
+          terraform_version: "1.5.7"
 
-      - name: Azure Login
-        uses: azure/login@v1
+      - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -47,59 +42,59 @@ jobs:
       - name: Terraform Plan
         working-directory: ${{ env.BASE_PATH }}
         env:
-          TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
         run: |
           terraform plan -no-color -out=tfplan-${{ github.sha }}
 
-      - name: Debug Variables
-        run: |
-          echo "Azure Subscription ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-
-      - name: Check tfplan file
+      # Salva tutto il contesto di Terraform
+      - name: Tar Terraform Directory
         working-directory: ${{ env.BASE_PATH }}
         run: |
-          ls -l tfplan-${{ github.sha }}
+          tar -czf terraform-context.tar.gz .terraform .terraform.lock.hcl tfplan-${{ github.sha }}
 
-      - name: Upload Terraform Plan as Artifact
-        uses: actions/upload-artifact@v2
+      - name: Upload Terraform Context
+        uses: actions/upload-artifact@v4
         with:
-          name: tfplan
-          path: ${{ env.BASE_PATH }}/tfplan-${{ github.sha }}
-          if-no-files-found: error
+          name: terraform-context
+          path: ${{ env.BASE_PATH }}/terraform-context.tar.gz
           retention-days: 1
 
   apply:
-    needs: plan
+    needs: [plan]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
+        name: Setup Terraform
+        with:
+          terraform_version: ${{ needs.plan.outputs.terraform_version }}
+
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Download Terraform Plan as Artifact
-        uses: actions/download-artifact@v2
+      - name: Download Terraform Context
+        uses: actions/download-artifact@v4
         with:
-          name: tfplan
+          name: terraform-context
           path: ${{ env.BASE_PATH }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.7.5
+      # Ripristina il contesto di Terraform
+      - name: Extract Terraform Context
+        working-directory: ${{ env.BASE_PATH }}
+        run: |
+          tar -xzf terraform-context.tar.gz
 
       - name: Terraform Apply
         working-directory: ${{ env.BASE_PATH }}
         env:
-          TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
         run: |
-          terraform apply -auto-approve tfplan-${{ github.sha }}
-
-      - name: Remove Terraform Lock
-        working-directory: ${{ env.BASE_PATH }}
-        run: |
-          rm -f .terraform.lock.hcl
+          terraform apply tfplan-${{ github.sha }}
