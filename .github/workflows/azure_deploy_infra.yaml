@@ -37,7 +37,7 @@ jobs:
 
       - name: Terraform Init
         run: |
-          cd infra/dev && terraform init
+          terraform init
 
       - name: Terraform Plan
         working-directory: ${{ steps.directory.outputs.dir }}
