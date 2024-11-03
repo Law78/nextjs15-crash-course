@@ -1,6 +1,12 @@
 name: Terraform Deploy
 
 on:
+  workflow_dispatch:
+    inputs:
+      example_input:
+        description: "An example input"
+        required: true
+        default: "test"
   push:
     branches:
       - main # Cambia il nome del branch se necessario
