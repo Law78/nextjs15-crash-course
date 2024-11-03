@@ -49,8 +49,7 @@ jobs:
           ls -l infra/dev/tfplan
 
   apply:
-    runs-on: ubuntu-latest
-    needs: plan
+    needs: [plan]
     steps:
       - name: Terraform Apply
         env:
