@@ -1,4 +1,4 @@
-resource "azurerm_resource_group" "example" {
+resource "azurerm_resource_group" "rg-lorenzo" {
   name     = "example"
-  location = "West Europe"
+  location = "italynorth"
 }
