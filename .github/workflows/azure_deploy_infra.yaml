@@ -8,7 +8,7 @@ on:
         description: Select the environment
 env:
   BUNDLE_NAME: bundle
-  BASE_PATH: "infra/dev"
+  BASE_PATH: "infra/${{ inputs.environment }}"
 
 permissions:
   id-token: write
@@ -78,7 +78,7 @@ jobs:
         uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
         with:
           name: tfplan
-          path: ${{ needs.tf_plan.outputs.working_dir }}
+          path: ${{ env.BASE_PATH }}${{ needs.tf_plan.outputs.working_dir }}
 
       - name: Retrieve Terraform Modules from Cache
         uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
@@ -97,7 +97,7 @@ jobs:
           TF_VAR_azure_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_environment: ${{ inputs.environment }}
         run: |
-          cd infra/dev && terraform apply -auto-approve tfplan-${{ github.sha }}
+          terraform apply -auto-approve tfplan-${{ github.sha }}
 
       - name: Remove Terraform Lock
         run: |
