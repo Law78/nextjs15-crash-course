@@ -2,35 +2,6 @@ name: Azure Deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      azure_roles:
-        description: "Azure roles"
-        required: true
-        default: '["Contributor", "Reader"]'
-      branches:
-        description: "Branches"
-        required: true
-        default: '["main"]'
-      environments:
-        description: "Environments"
-        required: true
-        default: '["dev", "uat", "prod"]'
-      tags:
-        description: "Tags"
-        required: true
-        default: '["latest"]'
-      pull_request:
-        description: "Pull request"
-        required: true
-        default: "true"
-      github_organization_name:
-        description: "GitHub organization name"
-        required: true
-        default: "Law78"
-      github_repository_name:
-        description: "GitHub repository name"
-        required: true
-        default: "nextjs15-crash-course"
 
 permissions:
   id-token: write
@@ -54,8 +25,6 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - run: az account show
-      - run: az group list
 
       - name: Terraform Init
         run: |
@@ -64,26 +33,12 @@ jobs:
       - name: Terraform Plan
         env:
           TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          TF_VAR_azure_roles: ${{ github.event.inputs.azure_roles }}
-          TF_VAR_branches: ${{ github.event.inputs.branches }}
-          TF_VAR_environments: ${{ github.event.inputs.environments }}
-          TF_VAR_tags: ${{ github.event.inputs.tags }}
-          TF_VAR_pull_request: ${{ github.event.inputs.pull_request }}
-          TF_VAR_github_organization_name: ${{ github.event.inputs.github_organization_name }}
-          TF_VAR_github_repository_name: ${{ github.event.inputs.github_repository_name }}
         run: |
           cd infra/dev && terraform plan -no-color -out=tfplan
 
       - name: Debug Variables
         run: |
           echo "Azure Subscription ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-          echo "Azure Roles: ${{ github.event.inputs.azure_roles }}"
-          echo "Branches: ${{ github.event.inputs.branches }}"
-          echo "Environments: ${{ github.event.inputs.environments }}"
-          echo "Tags: ${{ github.event.inputs.tags }}"
-          echo "Pull Request: ${{ github.event.inputs.pull_request }}"
-          echo "GitHub Organization Name: ${{ github.event.inputs.github_organization_name }}"
-          echo "GitHub Repository Name: ${{ github.event.inputs.github_repository_name }}"
 
       - name: Check tfplan file
         run: |
@@ -92,13 +47,6 @@ jobs:
       - name: Terraform Apply
         env:
           TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          TF_VAR_azure_roles: ${{ github.event.inputs.azure_roles }}
-          TF_VAR_branches: ${{ github.event.inputs.branches }}
-          TF_VAR_environments: ${{ github.event.inputs.environments }}
-          TF_VAR_tags: ${{ github.event.inputs.tags }}
-          TF_VAR_pull_request: ${{ github.event.inputs.pull_request }}
-          TF_VAR_github_organization_name: ${{ github.event.inputs.github_organization_name }}
-          TF_VAR_github_repository_name: ${{ github.event.inputs.github_repository_name }}
         run: |
           cd infra/dev && terraform apply -auto-approve tfplan
 
