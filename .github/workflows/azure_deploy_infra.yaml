@@ -7,9 +7,6 @@ on:
         description: "An example input"
         required: true
         default: "test"
-  push:
-    branches:
-      - main
 
 permissions:
   id-token: write
@@ -33,6 +30,7 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - run: az account show
       - run: az group list
 
       - name: Terraform Init
@@ -41,8 +39,12 @@ jobs:
 
       - name: Terraform Plan
         run: |
-          cd infra/dev && terraform plan
+          cd infra/dev && export TF_LOG=DEBUG && terraform plan -no-color -input=false
 
       - name: Terraform Apply
         run: |
           cd infra/dev && terraform apply -auto-approve
+
+      - name: Remove Terraform Lock
+        run: |
+          cd infra/dev && rm -f .terraform.lock.hcl
