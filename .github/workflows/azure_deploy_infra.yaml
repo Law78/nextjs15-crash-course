@@ -39,7 +39,7 @@ jobs:
 
       - name: Terraform Plan
         run: |
-          cd infra/dev && export TF_LOG=DEBUG && terraform plan \ 
+          terraform -chdir=infra/dev plan \ 
             -var "azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
             -var 'azure_roles=["Reader"]' \
             -var 'branches=["main"]' \
@@ -51,7 +51,7 @@ jobs:
 
       - name: Terraform Apply
         run: |
-          cd infra/dev && terraform apply -auto-approve
+          terraform -chdir=infra/dev apply -auto-approve
 
       - name: Remove Terraform Lock
         run: |
